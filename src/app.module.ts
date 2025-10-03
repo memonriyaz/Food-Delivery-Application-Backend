@@ -8,6 +8,10 @@ import { join } from 'path';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppResolver } from './app.resolver';
+import { UsersModule } from './users/users.module';
+import { MenuModule } from './menu/menu.module';
+import { OrdersModule } from './orders/orders.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -18,8 +22,12 @@ import { AppResolver } from './app.resolver';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: true,
     }),
+    UsersModule,
+    MenuModule,
+    OrdersModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [AppService, AppResolver], 
 })
 export class AppModule {}

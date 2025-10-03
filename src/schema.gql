@@ -2,6 +2,55 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserOutput {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  role: String!
+  phone: String
+  addresses: [UserAddressOutput!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type UserAddressOutput {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+  isDefault: Boolean!
+}
+
 type Query {
   sayHello: String!
+  userByEmail(email: String!): UserOutput!
+  userById(id: ID!): UserOutput!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): UserOutput!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  role: String
+  phone: String
+  addresses: [UserAddressInput!]
+}
+
+input UserAddressInput {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+  isDefault: Boolean! = false
 }
