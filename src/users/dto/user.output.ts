@@ -9,10 +9,7 @@ export class UserOutput {
   email: string;
 
   @Field()
-  firstName: string;
-
-  @Field()
-  lastName: string;
+  name: string;
 
   @Field()
   role: string;
@@ -20,30 +17,12 @@ export class UserOutput {
   @Field({ nullable: true })
   phone?: string;
 
-  @Field(() => [UserAddressOutput], { nullable: true })
-  addresses?: UserAddressOutput[];
+  @Field({ nullable: true })
+  address?: string;
 
   @Field()
   createdAt: Date;
 
   @Field()
   updatedAt: Date;
-}
-
-@ObjectType()
-export class UserAddressOutput {
-  @Field()
-  street: string;
-
-  @Field()
-  city: string;
-
-  @Field()
-  state: string;
-
-  @Field()
-  zipCode: string;
-
-  @Field()
-  isDefault: boolean;
 }

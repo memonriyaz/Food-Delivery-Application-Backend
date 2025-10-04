@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 
-@Schema({ timestamps: true }) 
+@Schema({ timestamps: true })
 export class Menu extends Document {
- declare _id: Types.ObjectId;
+  declare _id: Types.ObjectId;
 
   @Prop({ required: true })
   name: string;
@@ -52,7 +52,7 @@ export class Menu extends Document {
   isAvailable: boolean;
 
   @Prop()
-  preparationTime?: number; 
+  preparationTime?: number;
 }
 
 export const MenuSchema = SchemaFactory.createForClass(Menu);

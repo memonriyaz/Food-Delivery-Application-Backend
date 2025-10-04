@@ -1,8 +1,10 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 import { MenuService } from './menu.service';
 import { MenuItemOutput } from './dto/menu-item.output';
 import { CreateMenuItemInput } from './dto/create-menu-item.input';
 import { UpdateMenuItemInput } from './dto/update-menu-item.input';
+import { GqlAuthGuard } from '../auth/gql-auth.guard';
 
 @Resolver(() => MenuItemOutput)
 export class MenuResolver {
@@ -10,7 +12,7 @@ export class MenuResolver {
 
   /*
     ------------------------
-    ADMIN MUTATIONS (no auth yet)
+    ADMIN MUTATIONS (protected)
     ------------------------
   */
 
@@ -20,6 +22,7 @@ export class MenuResolver {
    - Return the created menu item
    */
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => MenuItemOutput)
   async addMenuItem(@Args('input') input: CreateMenuItemInput) {
     try {
@@ -29,11 +32,12 @@ export class MenuResolver {
     }
   }
 
- /*
+  /*
    - Update an existing menu item
    - Throw error if update fails
    - Return the updated menu item
    */
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => MenuItemOutput)
   async updateMenuItem(@Args('input') input: UpdateMenuItemInput) {
     try {
@@ -48,6 +52,7 @@ export class MenuResolver {
   - Throw error if deletion fails
   - Return the deleted menu item
   */
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => MenuItemOutput)
   async deleteMenuItem(@Args('id', { type: () => ID }) id: string) {
     try {
@@ -57,28 +62,27 @@ export class MenuResolver {
     }
   }
 
- /*
+  /*
     ------------------------
     ADMIN Queries (no auth yet)
     ------------------------
   */
-
 
   /*
   - Get all menu items
   - Throw error if retrieval fails
   - Return list of all menu items including unavailable ones
   */
-@Query(() => [MenuItemOutput], { name: 'allMenuItems' })
-async getAllMenuItems() {
-  try {
-    return await this.menuService.findAllItems();
-  } catch (error) {
-    throw new Error(`Failed to retrieve all menu items: ${error.message}`);
+  @Query(() => [MenuItemOutput], { name: 'allMenuItems' })
+  async getAllMenuItems() {
+    try {
+      return await this.menuService.findAllItems();
+    } catch (error) {
+      throw new Error(`Failed to retrieve all menu items: ${error.message}`);
+    }
   }
-}
 
-/*
+  /*
     ------------------------
     PUBLIC QUERIES
     ------------------------
@@ -108,7 +112,9 @@ async getAllMenuItems() {
     try {
       return await this.menuService.findByCategory(category);
     } catch (error) {
-      throw new Error(`Failed to fetch menu items by category: ${error.message}`);
+      throw new Error(
+        `Failed to fetch menu items by category: ${error.message}`,
+      );
     }
   }
 

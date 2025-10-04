@@ -6,13 +6,19 @@ export class Order extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
-  @Prop([{
-    menuItemId: { type: Types.ObjectId, ref: 'Menu', required: true },
-    name: { type: String, required: true },       // snapshot
-    price: { type: Number, required: true },      // snapshot
-    quantity: { type: Number, required: true, min: 1 },
-    specialInstructions: { type: String },
-  }])
+  // Assigned delivery user (optional)
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false, index: true })
+  assignedTo?: Types.ObjectId;
+
+  @Prop([
+    {
+      menuItemId: { type: Types.ObjectId, ref: 'Menu', required: true },
+      name: { type: String, required: true }, // snapshot
+      price: { type: Number, required: true }, // snapshot
+      quantity: { type: Number, required: true, min: 1 },
+      specialInstructions: { type: String },
+    },
+  ])
   items: {
     menuItemId: Types.ObjectId;
     name: string;
@@ -38,7 +44,15 @@ export class Order extends Document {
   };
 
   @Prop({
-    enum: ['placed', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'],
+    enum: [
+      'placed',
+      'confirmed',
+      'preparing',
+      'ready',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+    ],
     default: 'placed',
   })
   status: string;
@@ -64,7 +78,7 @@ export class Order extends Document {
   @Prop()
   notes?: string;
 
-   @Prop()
+  @Prop()
   createdAt?: Date;
 
   @Prop()

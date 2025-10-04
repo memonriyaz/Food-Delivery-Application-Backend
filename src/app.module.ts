@@ -13,6 +13,7 @@ import { MenuModule } from './menu/menu.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AuthModule } from './auth/auth.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -22,14 +23,16 @@ import { AuthModule } from './auth/auth.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: true,
+      context: ({ req }) => ({ req }),
     }),
     UsersModule,
     MenuModule,
     OrdersModule,
     PaymentsModule,
     AuthModule,
+    UploadsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver], 
+  providers: [AppService, AppResolver],
 })
 export class AppModule {}

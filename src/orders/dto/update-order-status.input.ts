@@ -8,7 +8,14 @@ export class UpdateOrderStatusInput {
   id: string;
 
   @Field()
-  @IsIn(['placed', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'])
+  @IsIn([
+    'placed',
+    'confirmed',
+    'preparing',
+    'ready',
+    'out_for_delivery',
+    'delivered',
+    'cancelled',
+  ])
   status: string;
 }
-    

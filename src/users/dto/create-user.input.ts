@@ -6,7 +6,7 @@ export class CreateUserInput {
   email: string;
 
   @Field()
-  password: string;  // ⚡ must be hashed in service, not here
+  password: string; // ⚡ must be hashed in service, not here
 
   @Field()
   firstName: string;
@@ -15,7 +15,7 @@ export class CreateUserInput {
   lastName: string;
 
   @Field({ nullable: true })
-  role?: string;  // defaults to 'customer'
+  role?: string; // defaults to 'customer'
 
   @Field({ nullable: true })
   phone?: string;

@@ -1,9 +1,11 @@
 {
+  "include": ["./src", "./node_modules/bcrypt/types"],
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
+    "types": ["node", "bcrypt"],
     "isolatedModules": true,
     "declaration": true,
     "removeComments": true,

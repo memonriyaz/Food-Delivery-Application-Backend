@@ -1,37 +1,39 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UserOutput } from './dto/user.output';   // GraphQL return type (ObjectType)
-import { CreateUserInput } from './dto/create-user.input';
-import { Types } from 'mongoose';
+import { UserOutput } from './dto/user.output';
+import { UpdateProfileInput } from './dto/update-profile.input';
+import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Resolver(() => UserOutput)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
-  /*
-    - Mutation: Create new user
-    - Returns created user
-  */
-  // @Mutation(() => UserOutput)
-  // async createUser(@Args('input') input: CreateUserInput): Promise<UserOutput> {
-  //   const user = await this.usersService.createUser(input);
-  //   return {
-  //     id: (user._id as Types.ObjectId).toString(),
-  //     ...(user as any).toObject(),
-  //   };
-  // }
+  // Current user (requires JWT)
+  @UseGuards(GqlAuthGuard)
+  @Query(() => UserOutput, { name: 'me' })
+  async me(@CurrentUser() user: any) {
+    return this.usersService.findById(user.id);
+  }
 
-  /*
-    - Query: Find user by email
-  */
+  // Update profile (requires JWT)
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => UserOutput, { name: 'updateMyProfile' })
+  async updateMyProfile(
+    @CurrentUser() user: any,
+    @Args('input') input: UpdateProfileInput,
+  ) {
+    return this.usersService.updateProfile(user.id, input);
+  }
+
+  // Query: Find user by email
   @Query(() => UserOutput, { name: 'userByEmail' })
   async getUserByEmail(@Args('email') email: string) {
     return this.usersService.findOneByEmail(email);
   }
 
-  /*
-    - Query: Find user by ID
-  */
+  // Query: Find user by ID
   @Query(() => UserOutput, { name: 'userById' })
   async getUserById(@Args('id', { type: () => ID }) id: string) {
     return this.usersService.findById(id);

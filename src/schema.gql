@@ -5,11 +5,10 @@
 type UserOutput {
   id: ID!
   email: String!
-  firstName: String!
-  lastName: String!
+  name: String!
   role: String!
   phone: String
-  addresses: [UserAddressOutput!]
+  address: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -18,14 +17,6 @@ type UserOutput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type UserAddressOutput {
-  street: String!
-  city: String!
-  state: String!
-  zipCode: String!
-  isDefault: Boolean!
-}
 
 type NutritionalInfoOutput {
   calories: Float
@@ -69,6 +60,7 @@ type DeliveryAddressOutput {
 type OrderOutput {
   orderId: ID!
   userId: ID!
+  assignedTo: ID
   items: [OrderItemOutput!]!
   totalAmount: Float!
   deliveryAddress: DeliveryAddressOutput!
@@ -76,8 +68,25 @@ type OrderOutput {
   createdAt: DateTime
 }
 
+type OrderStatisticsOutput {
+  total: Int!
+  placed: Int!
+  confirmed: Int!
+  preparing: Int!
+  ready: Int!
+  out_for_delivery: Int!
+  delivered: Int!
+  cancelled: Int!
+}
+
+type PaymentOrderOutput {
+  orderId: String
+  paymentSessionId: String
+}
+
 type Query {
   sayHello: String!
+  me: UserOutput!
   userByEmail(email: String!): UserOutput!
   userById(id: ID!): UserOutput!
   allMenuItems: [MenuItemOutput!]!
@@ -85,14 +94,37 @@ type Query {
   menuItemsByCategory(category: String!): [MenuItemOutput!]!
   menuItem(id: ID!): MenuItemOutput!
   searchMenuItems(query: String!): [MenuItemOutput!]!
-  userOrders(userId: ID!): [OrderOutput!]!
+  userOrders: [OrderOutput!]!
+  myDeliveries: [OrderOutput!]!
+  allOrders(status: String): [OrderOutput!]!
+  ordersByStatus(status: String!): [OrderOutput!]!
+  orderStats: OrderStatisticsOutput!
+  paymentStatus(orderId: String!): String!
 }
 
 type Mutation {
+  updateMyProfile(input: UpdateProfileInput!): UserOutput!
   addMenuItem(input: CreateMenuItemInput!): MenuItemOutput!
   updateMenuItem(input: UpdateMenuItemInput!): MenuItemOutput!
   deleteMenuItem(id: ID!): MenuItemOutput!
-  createOrder(input: CreateOrderInput!, userId: ID!): OrderOutput!
+  createOrder(input: CreateOrderInput!): OrderOutput!
+  confirmOrder(orderId: ID!): OrderOutput!
+  markPreparing(orderId: ID!): OrderOutput!
+  markReady(orderId: ID!): OrderOutput!
+  startDelivery(orderId: ID!): OrderOutput!
+  markDelivered(orderId: ID!): OrderOutput!
+  cancelOrder(orderId: ID!): OrderOutput!
+  assignOrder(orderId: ID!, deliveryUserId: ID!): OrderOutput!
+  createPaymentOrder(input: CreatePaymentOrderInput!): PaymentOrderOutput!
+  createPaymentForOrder(input: CreatePaymentForOrderInput!): PaymentOrderOutput!
+  confirmPayment(orderId: String!): OrderOutput!
+  refundPayment(orderId: String!): OrderOutput!
+}
+
+input UpdateProfileInput {
+  name: String
+  phone: String
+  address: String
 }
 
 input CreateMenuItemInput {
@@ -150,4 +182,16 @@ input DeliveryAddressInput {
   city: String!
   state: String!
   zipCode: String!
+}
+
+input CreatePaymentOrderInput {
+  orderAmount: Float!
+  orderCurrency: String = "INR"
+  customerId: String!
+  customerPhone: String!
+}
+
+input CreatePaymentForOrderInput {
+  orderId: ID!
+  customerPhone: String!
 }

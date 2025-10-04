@@ -38,6 +38,9 @@ export class OrderOutput {
   @Field(() => ID)
   userId: string;
 
+  @Field(() => ID, { nullable: true })
+  assignedTo?: string;
+
   @Field(() => [OrderItemOutput])
   items: OrderItemOutput[];
 
