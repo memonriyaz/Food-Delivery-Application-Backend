@@ -27,14 +27,47 @@ type UserAddressOutput {
   isDefault: Boolean!
 }
 
+type NutritionalInfoOutput {
+  calories: Float
+  protein: Float
+  carbs: Float
+  fat: Float
+}
+
+type MenuItemOutput {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  category: String!
+  imageUrl: String
+  ingredients: [String!]
+  nutritionalInfo: NutritionalInfoOutput
+  isVegetarian: Boolean!
+  isVegan: Boolean!
+  isGlutenFree: Boolean!
+  isAvailable: Boolean!
+  preparationTime: Float
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   sayHello: String!
   userByEmail(email: String!): UserOutput!
   userById(id: ID!): UserOutput!
+  allMenuItems: [MenuItemOutput!]!
+  menuItems: [MenuItemOutput!]!
+  menuItemsByCategory(category: String!): [MenuItemOutput!]!
+  menuItem(id: ID!): MenuItemOutput!
+  searchMenuItems(query: String!): [MenuItemOutput!]!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): UserOutput!
+  addMenuItem(input: CreateMenuItemInput!): MenuItemOutput!
+  updateMenuItem(input: UpdateMenuItemInput!): MenuItemOutput!
+  deleteMenuItem(id: ID!): MenuItemOutput!
 }
 
 input CreateUserInput {
@@ -53,4 +86,42 @@ input UserAddressInput {
   state: String!
   zipCode: String!
   isDefault: Boolean! = false
+}
+
+input CreateMenuItemInput {
+  name: String!
+  description: String
+  price: Float!
+  category: String!
+  imageUrl: String
+  ingredients: [String!]
+  nutritionalInfo: NutritionalInfoInput
+  isVegetarian: Boolean
+  isVegan: Boolean
+  isGlutenFree: Boolean
+  isAvailable: Boolean
+  preparationTime: Float
+}
+
+input NutritionalInfoInput {
+  calories: Float
+  protein: Float
+  carbs: Float
+  fat: Float
+}
+
+input UpdateMenuItemInput {
+  name: String
+  description: String
+  price: Float
+  category: String
+  imageUrl: String
+  ingredients: [String!]
+  nutritionalInfo: NutritionalInfoInput
+  isVegetarian: Boolean
+  isVegan: Boolean
+  isGlutenFree: Boolean
+  isAvailable: Boolean
+  preparationTime: Float
+  id: ID!
 }
