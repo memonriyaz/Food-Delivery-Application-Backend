@@ -52,6 +52,30 @@ type MenuItemOutput {
   updatedAt: DateTime!
 }
 
+type OrderItemOutput {
+  name: String!
+  price: Float!
+  quantity: Int!
+  subTotal: Float!
+}
+
+type DeliveryAddressOutput {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+}
+
+type OrderOutput {
+  orderId: ID!
+  userId: ID!
+  items: [OrderItemOutput!]!
+  totalAmount: Float!
+  deliveryAddress: DeliveryAddressOutput!
+  status: String!
+  createdAt: DateTime
+}
+
 type Query {
   sayHello: String!
   userByEmail(email: String!): UserOutput!
@@ -61,6 +85,7 @@ type Query {
   menuItemsByCategory(category: String!): [MenuItemOutput!]!
   menuItem(id: ID!): MenuItemOutput!
   searchMenuItems(query: String!): [MenuItemOutput!]!
+  userOrders(userId: ID!): [OrderOutput!]!
 }
 
 type Mutation {
@@ -68,6 +93,7 @@ type Mutation {
   addMenuItem(input: CreateMenuItemInput!): MenuItemOutput!
   updateMenuItem(input: UpdateMenuItemInput!): MenuItemOutput!
   deleteMenuItem(id: ID!): MenuItemOutput!
+  createOrder(input: CreateOrderInput!, userId: ID!): OrderOutput!
 }
 
 input CreateUserInput {
@@ -124,4 +150,23 @@ input UpdateMenuItemInput {
   isAvailable: Boolean
   preparationTime: Float
   id: ID!
+}
+
+input CreateOrderInput {
+  items: [OrderItemInput!]!
+  deliveryAddress: DeliveryAddressInput!
+  notes: String
+}
+
+input OrderItemInput {
+  menuItemId: ID!
+  quantity: Int!
+  specialInstructions: String
+}
+
+input DeliveryAddressInput {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
 }
