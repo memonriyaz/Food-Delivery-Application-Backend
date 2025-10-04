@@ -6,20 +6,20 @@ import { Types } from 'mongoose';
 
 @Resolver(() => UserOutput)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   /*
     - Mutation: Create new user
     - Returns created user
   */
- @Mutation(() => UserOutput)
-async createUser(@Args('input') input: CreateUserInput): Promise<UserOutput> {
-  const user = await this.usersService.createUser(input);
-  return {
-   id: (user._id as Types.ObjectId).toString(),
-  ...user.toObject(),
-  };
-}
+  // @Mutation(() => UserOutput)
+  // async createUser(@Args('input') input: CreateUserInput): Promise<UserOutput> {
+  //   const user = await this.usersService.createUser(input);
+  //   return {
+  //     id: (user._id as Types.ObjectId).toString(),
+  //     ...(user as any).toObject(),
+  //   };
+  // }
 
   /*
     - Query: Find user by email

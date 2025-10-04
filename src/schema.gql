@@ -89,29 +89,10 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): UserOutput!
   addMenuItem(input: CreateMenuItemInput!): MenuItemOutput!
   updateMenuItem(input: UpdateMenuItemInput!): MenuItemOutput!
   deleteMenuItem(id: ID!): MenuItemOutput!
   createOrder(input: CreateOrderInput!, userId: ID!): OrderOutput!
-}
-
-input CreateUserInput {
-  email: String!
-  password: String!
-  firstName: String!
-  lastName: String!
-  role: String
-  phone: String
-  addresses: [UserAddressInput!]
-}
-
-input UserAddressInput {
-  street: String!
-  city: String!
-  state: String!
-  zipCode: String!
-  isDefault: Boolean! = false
 }
 
 input CreateMenuItemInput {
