@@ -1,123 +1,143 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { createHmac } from 'crypto';
 import { Order } from '../schemas/order.schema';
 
 export interface CreatePaymentOrderParams {
-  orderAmount: number;
-  orderCurrency?: string; // default: INR
-  customerId: string;
-  customerPhone: string;
+  count: number;
+  foodName: string;
+  foodId: string;
+  totalPrice: number;
+  userId: string;          
+  orderCurrency?: string;   
+  customerPhone?: string;   
 }
 
 export interface PaymentOrderResult {
   orderId?: string;
   paymentSessionId?: string;
   raw?: Record<string, unknown>;
+  redirectUrl:string
 }
 
 @Injectable()
 export class PaymentsService {
-  private baseUrl = process.env.CF_BASE_URL || 'https://sandbox.cashfree.com';
-  private apiVersion = process.env.CF_API_VERSION || '2023-08-01';
-  private clientId = process.env.CF_CLIENT_ID;
-  private clientSecret = process.env.CF_CLIENT_SECRET;
-  private webhookSecret = process.env.CF_WEBHOOK_SECRET;
+  private baseUrl = 'https://sandbox.cashfree.com';
+  private apiVersion = '2023-08-01';
+  private clientId = 'TEST1011250204ce941052d408033e8220521101'
+  private clientSecret = 'cfsk_ma_test_1312eea19c86a5a22cc39ef76ca72e66_3d9953a4';
+  private webhookSecret = 'cfsk_ma_test_1312eea19c86a5a22cc39ef76ca72e66_3d9953a4'
 
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
   ) {}
 
-  async createCashfreeOrder(
-    params: CreatePaymentOrderParams,
-  ): Promise<PaymentOrderResult> {
-    try {
-      if (!this.clientId || !this.clientSecret) {
-        throw new InternalServerErrorException(
-          'Cashfree credentials are not configured (CF_CLIENT_ID/CF_CLIENT_SECRET)',
-        );
-      }
-
-      const url = `${this.baseUrl}/pg/orders`;
-
-      const body = {
-        order_currency: params.orderCurrency || 'INR',
-        order_amount: params.orderAmount,
-        customer_details: {
-          customer_id: params.customerId,
-          customer_phone: params.customerPhone,
-        },
-      } as const;
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-version': this.apiVersion,
-          'x-client-id': this.clientId,
-          'x-client-secret': this.clientSecret,
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = (await res.json()) as Record<string, unknown>;
-      if (!res.ok) {
-        // surface the gateway error message if present
-        throw new InternalServerErrorException(
-          `Cashfree order creation failed: ${JSON.stringify(data)}`,
-        );
-      }
-
-      // Map common fields if present
-      const orderId = (data as any).order_id as string | undefined;
-      const paymentSessionId = (data as any).payment_session_id as
-        | string
-        | undefined;
-
-      return {
-        orderId,
-        paymentSessionId,
-        raw: data,
-      };
-    } catch (error: any) {
-      throw new InternalServerErrorException(
-        `Failed to create Cashfree order: ${error?.message || error}`,
-      );
-    }
-  }
-
-  async createCashfreeOrderForExistingOrder(
-    orderId: string,
-    customerId: string,
-    customerPhone: string,
-  ): Promise<PaymentOrderResult> {
-    // Load order
-    const order = await this.orderModel.findById(orderId).exec();
-    if (!order) {
-      throw new InternalServerErrorException('Order not found');
+async createCashfreeOrder(params: CreatePaymentOrderParams): Promise<PaymentOrderResult> {
+  try {
+    if (!this.clientId || !this.clientSecret) {
+      throw new InternalServerErrorException('Cashfree credentials are not configured');
     }
 
-    // Create Cashfree order using the order total
-    const result = await this.createCashfreeOrder({
-      orderAmount: order.totalAmount,
-      orderCurrency: 'INR',
-      customerId,
-      customerPhone,
+    // 1️ Save order in DB
+    const newOrder = await this.orderModel.create({
+      userId: new Types.ObjectId(params.userId),
+      items: [
+        {
+          menuItemId: new Types.ObjectId(params.foodId),
+          name: params.foodName,
+          price: params.totalPrice / params.count,
+          quantity: params.count,
+        },
+      ],
+      deliveryAddress: {
+        street: 'N/A',
+        city: 'N/A',
+        state: 'N/A',
+        zipCode: '000000',
+      },
+      status: 'placed',
+      totalAmount: params.totalPrice,
+      paymentStatus: 'pending',
     });
 
-    // Persist gateway order id on our order
-    if (result.orderId) {
-      order.paymentIntentId = result.orderId;
-      order.paymentStatus = 'pending';
-      await order.save();
+    // 2️ Create Cashfree order with return_url & notify_url
+    const body = {
+      order_currency: params.orderCurrency || 'INR',
+      order_amount: params.totalPrice,
+      customer_details: {
+        customer_id: params.userId,
+        customer_phone: params.customerPhone || '9999999999',
+      },
+      order_meta: {
+        return_url: "http://localhost:5173/orderSuccess", 
+        notify_url: "http://localhost:3000/payments/webhook", 
+      },
+    };
+
+    const res = await fetch(`${this.baseUrl}/pg/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-version': this.apiVersion,
+        'x-client-id': this.clientId,
+        'x-client-secret': this.clientSecret,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = (await res.json()) as Record<string, unknown>;
+    if (!res.ok) {
+      throw new InternalServerErrorException(
+        `Cashfree order creation failed: ${JSON.stringify(data)}`
+      );
     }
 
-    return result;
+    const orderId = (data as any).order_id as string;
+    const paymentSessionId = (data as any).payment_session_id as string;
+
+    // Update order in DB with Cashfree orderId
+    await this.orderModel.findByIdAndUpdate(newOrder._id, { paymentIntentId: orderId });
+
+    //  Return everything to frontend
+    return { orderId, paymentSessionId, raw: data };
+
+  } catch (error: any) {
+    throw new InternalServerErrorException(
+      `Failed to create Cashfree order: ${error?.message || error}`,
+    );
   }
+}
+
+  // async createCashfreeOrderForExistingOrder(
+  //   orderId: string,
+  //   customerId: string,
+  //   customerPhone: string,
+  // ): Promise<PaymentOrderResult> {
+  //   // Load order
+  //   const order = await this.orderModel.findById(orderId).exec();
+  //   if (!order) {
+  //     throw new InternalServerErrorException('Order not found');
+  //   }
+
+  //   // Create Cashfree order using the order total
+  //   const result = await this.createCashfreeOrder({
+  //     orderAmount: order.totalAmount,
+  //     orderCurrency: 'INR',
+  //     customerId,
+  //     customerPhone,
+  //   });
+
+  //   // Persist gateway order id on our order
+  //   if (result.orderId) {
+  //     order.paymentIntentId = result.orderId;
+  //     order.paymentStatus = 'pending';
+  //     await order.save();
+  //   }
+
+  //   return result;
+  // }
 
   verifyCashfreeSignature(rawBody: string, signature: string | undefined): boolean {
     if (!this.webhookSecret) {

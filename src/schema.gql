@@ -79,11 +79,6 @@ type OrderStatisticsOutput {
   cancelled: Int!
 }
 
-type PaymentOrderOutput {
-  orderId: String
-  paymentSessionId: String
-}
-
 type FoodItem {
   name: String!
   price: Float!
@@ -159,8 +154,6 @@ type Mutation {
   markDelivered(orderId: ID!): OrderOutput!
   cancelOrder(orderId: ID!): OrderOutput!
   assignOrder(orderId: ID!, deliveryUserId: ID!): OrderOutput!
-  createPaymentOrder(input: CreatePaymentOrderInput!): PaymentOrderOutput!
-  createPaymentForOrder(input: CreatePaymentForOrderInput!): PaymentOrderOutput!
   confirmPayment(orderId: String!): OrderOutput!
   refundPayment(orderId: String!): OrderOutput!
 }
@@ -226,16 +219,4 @@ input DeliveryAddressInput {
   city: String!
   state: String!
   zipCode: String!
-}
-
-input CreatePaymentOrderInput {
-  orderAmount: Float!
-  orderCurrency: String = "INR"
-  customerId: String!
-  customerPhone: String!
-}
-
-input CreatePaymentForOrderInput {
-  orderId: ID!
-  customerPhone: String!
 }

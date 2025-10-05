@@ -12,41 +12,41 @@ import { OrderOutput } from '../orders/dto/order.output';
 export class PaymentsResolver {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Mutation(() => PaymentOrderOutput, { name: 'createPaymentOrder' })
-  async createPaymentOrder(
-    @Args('input') input: CreatePaymentOrderInput,
-  ): Promise<PaymentOrderOutput> {
-    const result = await this.paymentsService.createCashfreeOrder({
-      orderAmount: input.orderAmount,
-      orderCurrency: input.orderCurrency ?? 'INR',
-      customerId: input.customerId,
-      customerPhone: input.customerPhone,
-    });
+  // @Mutation(() => PaymentOrderOutput, { name: 'createPaymentOrder' })
+  // async createPaymentOrder(
+  //   @Args('input') input: CreatePaymentOrderInput,
+  // ): Promise<PaymentOrderOutput> {
+  //   const result = await this.paymentsService.createCashfreeOrder({
+  //     orderAmount: input.orderAmount,
+  //     orderCurrency: input.orderCurrency ?? 'INR',
+  //     customerId: input.customerId,
+  //     customerPhone: input.customerPhone,
+  //   });
 
-    return {
-      orderId: result.orderId ?? null,
-      paymentSessionId: result.paymentSessionId ?? null,
-    };
-  }
+  //   return {
+  //     orderId: result.orderId ?? null,
+  //     paymentSessionId: result.paymentSessionId ?? null,
+  //   };
+  // }
 
-  // Create payment for an existing order and persist gateway order id
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => PaymentOrderOutput, { name: 'createPaymentForOrder' })
-  async createPaymentForOrder(
-    @Args('input') input: CreatePaymentForOrderInput,
-    @CurrentUser() user: any,
-  ): Promise<PaymentOrderOutput> {
-    const result = await this.paymentsService.createCashfreeOrderForExistingOrder(
-      input.orderId,
-      user.id,
-      input.customerPhone,
-    );
+  // // Create payment for an existing order and persist gateway order id
+  // @UseGuards(GqlAuthGuard)
+  // @Mutation(() => PaymentOrderOutput, { name: 'createPaymentForOrder' })
+  // async createPaymentForOrder(
+  //   @Args('input') input: CreatePaymentForOrderInput,
+  //   @CurrentUser() user: any,
+  // ): Promise<PaymentOrderOutput> {
+  //   const result = await this.paymentsService.createCashfreeOrderForExistingOrder(
+  //     input.orderId,
+  //     user.id,
+  //     input.customerPhone,
+  //   );
 
-    return {
-      orderId: result.orderId ?? null,
-      paymentSessionId: result.paymentSessionId ?? null,
-    };
-  }
+  //   return {
+  //     orderId: result.orderId ?? null,
+  //     paymentSessionId: result.paymentSessionId ?? null,
+  //   };
+  // }
 
   // Confirm payment by fetching status from Cashfree and updating the order
   @UseGuards(GqlAuthGuard)
