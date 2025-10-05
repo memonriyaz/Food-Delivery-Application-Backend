@@ -121,6 +121,9 @@ type Query {
   orderStats: OrderStatisticsOutput!
   paymentStatus(orderId: String!): String!
   myRestaurant: Restaurant!
+  restaurants: [Restaurant!]!
+  restaurant(id: String!): Restaurant!
+  restaurantByName(name: String!): Restaurant!
 }
 
 type Mutation {

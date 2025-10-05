@@ -1,4 +1,4 @@
-import { Resolver, Query, Context } from '@nestjs/graphql';
+import { Resolver, Query, Context, Args } from '@nestjs/graphql';
 import { RestaurantService } from './restaurant.service'
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard'
@@ -24,5 +24,19 @@ export class RestaurantResolver {
     return this.restaurantService.getOwnerRestaurantWithFoodItems(userId);
   }
 
+  @Query(() => [Restaurant], { name: 'restaurants' })
+  async getAllRestaurants(): Promise<Restaurant[]> {
+    return this.restaurantService.getAllRestaurants();
+  }
+
+  @Query(() => Restaurant, { name: 'restaurant' })
+  async getRestaurant(@Args('id') id: string): Promise<Restaurant> {
+    return this.restaurantService.getRestaurantWithFoodItems(id);
+  }
+
+  @Query(() => Restaurant, { name: 'restaurantByName' })
+  async getRestaurantByName(@Args('name') name: string): Promise<Restaurant> {
+    return this.restaurantService.getRestaurantByNameWithFoodItems(name);
+  }
 
 }

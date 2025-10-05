@@ -165,6 +165,107 @@ export class RestaurantService {
         }
     }
 
+    /**
+     * Fetches all restaurants from the database for public viewing
+     * 
+     * @returns Array of all restaurants with basic info
+     * @throws BadRequestException if fetching fails
+     */
+    async getAllRestaurants(): Promise<Restaurant[]> {
+        try {
+            const restaurants = await this.restaurantModel
+                .find()
+                .populate('owner', 'name email') // Only populate name and email from owner
+                .exec();
+            
+            return restaurants;
+        } catch (error) {
+            console.error('Error fetching all restaurants:', error);
+            throw new BadRequestException('Failed to fetch restaurants: ' + (error.message || error));
+        }
+    }
+
+    /**
+     * Fetches a specific restaurant by ID along with all its food items
+     * 
+     * @param restaurantId - ID of the restaurant to fetch
+     * @returns Restaurant with its food items
+     * @throws BadRequestException if restaurant not found or fetching fails
+     */
+    async getRestaurantWithFoodItems(restaurantId: string): Promise<any> {
+        try {
+            if (!restaurantId) {
+                throw new BadRequestException('Restaurant ID is required');
+            }
+
+            // Convert string to ObjectId for proper MongoDB query
+            const objectId = new Types.ObjectId(restaurantId);
+            
+            // Fetch restaurant
+            const restaurant = await this.restaurantModel
+                .findById(objectId)
+                .populate('owner', 'name email')
+                .exec();
+
+            if (!restaurant) {
+                throw new BadRequestException('Restaurant not found');
+            }
+
+            // Fetch related food items
+            const foodItems = await this.foodItemModel
+                .find({ restaurant: restaurant._id })
+                .exec();
+
+            // Return combined result
+            return {
+                ...restaurant.toObject(),
+                foodItems,
+            };
+        } catch (error) {
+            console.error('Error fetching restaurant with food items:', error);
+            throw new BadRequestException('Failed to fetch restaurant: ' + (error.message || error));
+        }
+    }
+
+    /**
+     * Fetches a specific restaurant by name along with all its food items
+     * 
+     * @param restaurantName - Name of the restaurant to fetch
+     * @returns Restaurant with its food items
+     * @throws BadRequestException if restaurant not found or fetching fails
+     */
+    async getRestaurantByNameWithFoodItems(restaurantName: string): Promise<any> {
+        try {
+            if (!restaurantName) {
+                throw new BadRequestException('Restaurant name is required');
+            }
+
+            // Fetch restaurant by name (case-insensitive)
+            const restaurant = await this.restaurantModel
+                .findOne({ name: { $regex: new RegExp(`^${restaurantName}$`, 'i') } })
+                .populate('owner', 'name email')
+                .exec();
+
+            if (!restaurant) {
+                throw new BadRequestException('Restaurant not found');
+            }
+
+            // Fetch related food items
+            const foodItems = await this.foodItemModel
+                .find({ restaurant: restaurant._id })
+                .exec();
+
+            // Return combined result
+            return {
+                ...restaurant.toObject(),
+                foodItems,
+            };
+        } catch (error) {
+            console.error('Error fetching restaurant by name with food items:', error);
+            throw new BadRequestException('Failed to fetch restaurant: ' + (error.message || error));
+        }
+    }
+
 
 
 
