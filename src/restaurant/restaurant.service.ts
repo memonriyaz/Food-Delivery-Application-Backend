@@ -100,7 +100,7 @@ export class RestaurantService {
             if (restaurant?.owner?.toString() !== userId) {
                 throw new ForbiddenException('You are not allowed to add food items to this restaurant');
             }
-            
+
             let imageUrl: string | undefined;
             if (imageBuffer) {
                 const { url } = await this.cloudinary.uploadImageBuffer(imageBuffer, filename);
@@ -136,7 +136,7 @@ export class RestaurantService {
 
             // Convert string to ObjectId for proper MongoDB query
             const objectId = new Types.ObjectId(userId);
-            
+
             // Fetch restaurant and populate owner
             const restaurant = await this.restaurantModel
                 .findOne({ owner: objectId })
@@ -177,7 +177,7 @@ export class RestaurantService {
                 .find()
                 .populate('owner', 'name email') // Only populate name and email from owner
                 .exec();
-            
+
             return restaurants;
         } catch (error) {
             console.error('Error fetching all restaurants:', error);
@@ -200,7 +200,7 @@ export class RestaurantService {
 
             // Convert string to ObjectId for proper MongoDB query
             const objectId = new Types.ObjectId(restaurantId);
-            
+
             // Fetch restaurant
             const restaurant = await this.restaurantModel
                 .findById(objectId)
@@ -266,9 +266,58 @@ export class RestaurantService {
         }
     }
 
+    /**
+     * Fetches recommended items (2 items from each restaurant)
+     * 
+     * @returns Array of objects with restaurant info and 2 food items each
+     * @throws BadRequestException if fetching fails
+     */
+    async getRecommendedItems(): Promise<any[]> {
+        try {
+            // Get all restaurants
+            const restaurants = await this.restaurantModel
+                .find()
+                .populate('owner', 'name email')
+                .exec();
 
+            const recommendedItems: any[] = [];
 
+            // For each restaurant, get up to 2 food items
+            for (const restaurant of restaurants) {
+                const foodItems = await this.foodItemModel
+                    .find({ restaurant: restaurant._id })
+                    .limit(2) // Limit to 2 items per restaurant
+                    .exec();
 
+                // Only include restaurants that have food items
+                if (foodItems.length > 0) {
+                    // Add each food item with restaurant info
+                    foodItems.forEach(item => {
+                        recommendedItems.push({
+                            _id: item._id,
+                            name: item.name,
+                            price: item.price,
+                            image: item.image,
+                            category: item.category,
+                            type: item.type,
+                            restaurant: {
+                                _id: restaurant._id,
+                                name: restaurant.name,
+                                image: restaurant.image,
+                                city: restaurant.city,
+                                state: restaurant.state,
+                                address: restaurant.address,
+                            }
+                        });
+                    });
+                }
+            }
 
+            return recommendedItems;
+        } catch (error) {
+            console.error('Error fetching recommended items:', error);
+            throw new BadRequestException('Failed to fetch recommended items: ' + (error.message || error));
+        }
+    }
 
 }

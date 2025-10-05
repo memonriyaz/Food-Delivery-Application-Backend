@@ -104,6 +104,25 @@ type Restaurant {
   foodItems: [FoodItem!]
 }
 
+type RestaurantInfo {
+  _id: ID!
+  name: String!
+  image: String
+  city: String
+  state: String
+  address: String!
+}
+
+type RecommendedItemOutput {
+  _id: ID!
+  name: String!
+  price: Float!
+  image: String
+  category: String!
+  type: String
+  restaurant: RestaurantInfo!
+}
+
 type Query {
   sayHello: String!
   me: UserOutput!
@@ -124,6 +143,7 @@ type Query {
   restaurants: [Restaurant!]!
   restaurant(id: String!): Restaurant!
   restaurantByName(name: String!): Restaurant!
+  recommendedItems: [RecommendedItemOutput!]!
 }
 
 type Mutation {

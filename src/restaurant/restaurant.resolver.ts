@@ -3,6 +3,7 @@ import { RestaurantService } from './restaurant.service'
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard'
 import { Restaurant } from '../schemas/restaurant.schema'
+import { RecommendedItemOutput } from './dto/recommended-item.output'
 
 
 @Resolver(() => Restaurant)
@@ -37,6 +38,11 @@ export class RestaurantResolver {
   @Query(() => Restaurant, { name: 'restaurantByName' })
   async getRestaurantByName(@Args('name') name: string): Promise<Restaurant> {
     return this.restaurantService.getRestaurantByNameWithFoodItems(name);
+  }
+
+  @Query(() => [RecommendedItemOutput], { name: 'recommendedItems' })
+  async getRecommendedItems(): Promise<RecommendedItemOutput[]> {
+    return this.restaurantService.getRecommendedItems();
   }
 
 }
