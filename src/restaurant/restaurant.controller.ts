@@ -70,7 +70,7 @@ export class RestaurantController {
       hasImage: !!image,
       filename: image?.originalname,
       size: image?.buffer?.length,
-      mimetype: image?.mimetype
+      mimetype: image?.mimetype,
     });
     console.log('Request body:', body);
 
