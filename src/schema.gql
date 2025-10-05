@@ -84,6 +84,16 @@ type PaymentOrderOutput {
   paymentSessionId: String
 }
 
+type Restaurant {
+  name: String!
+  image: String
+  city: String!
+  state: String!
+  address: String!
+  phone: String!
+  email: String!
+}
+
 type Query {
   sayHello: String!
   me: UserOutput!
@@ -100,6 +110,7 @@ type Query {
   ordersByStatus(status: String!): [OrderOutput!]!
   orderStats: OrderStatisticsOutput!
   paymentStatus(orderId: String!): String!
+  myRestaurant: Restaurant!
 }
 
 type Mutation {

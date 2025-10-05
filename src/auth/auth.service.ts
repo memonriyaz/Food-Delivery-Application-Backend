@@ -70,7 +70,7 @@ export class AuthService {
    */
   async signUp(signupDto: SignupDto): Promise<SignupResponse> {
     try {
-      const { name, email, password, role } = signupDto;
+      const { name, email, password, role , phone} = signupDto;
 
       // checking user exist or not
       const existingUser = await this.userModel.findOne({ email });
@@ -84,6 +84,7 @@ export class AuthService {
         email,
         password,
         role: role || UserRole.USER,
+        phone
       });
 
       await user.save();
@@ -118,6 +119,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResponse> {
     try {
       const { email, password } = loginDto;
+      console.log(email , password)
 
       // fetch user including password for verification
       const userWithPassword = await this.userModel
@@ -151,6 +153,37 @@ export class AuthService {
       throw new InternalServerErrorException('Failed to Login ' + error);
     }
   }
+  //  async login(loginDto: LoginDto): Promise<LoginResponse> {
+  //       try {
+  //           const { email, password } = loginDto;
+
+  //           // check user exits or not
+  //           const user = await this.userModel.findOne({ email }).select('+password');
+  //           // console.log(user)
+  //           if (!user) {
+  //               throw new UnauthorizedException('Invalid email or password');
+  //           }
+
+  //           // check password match or not
+  //           const isMatch = await bcrypt.compare(password, user.password);
+  //           if (!isMatch) {
+  //               throw new UnauthorizedException('Invalid email or password');
+  //           }
+
+  //           // generate access and refresh token
+  //           const tokens = this.generateTokens(user)
+
+  //           return {
+  //               message: "User Login successfully",
+  //               tokens,
+  //               user
+  //           }
+
+
+  //       } catch (error) {
+  //           throw new InternalServerErrorException("Failed to Login " + error)
+  //       }
+  //   }
 
   /**
    * Generates new access and refresh tokens using a provided refresh token.

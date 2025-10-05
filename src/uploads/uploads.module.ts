@@ -7,5 +7,6 @@ import { MenuModule } from '../menu/menu.module';
   imports: [MenuModule],
   controllers: [UploadsController],
   providers: [CloudinaryService],
+  exports:[CloudinaryService]
 })
 export class UploadsModule {}

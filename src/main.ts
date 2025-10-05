@@ -4,16 +4,21 @@ import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    const app = await NestFactory.create(AppModule);
 
-  // Raw body is required for verifying Cashfree webhook signatures
-  app.use('/payments/webhook', express.raw({ type: '*/*' }));
+    app.use('/payments/webhook', express.raw({ type: '*/*' }));
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    app.enableCors({
+      origin: 'http://localhost:5173',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+    });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-    }),
-  );
-  await app.listen(process.env.PORT ?? 3000);
+    await app.listen(3000);
+    console.log('NestJS server running on http://localhost:3000 ');
+  } catch (err) {
+    console.error('Error starting NestJS:', err);
+  }
 }
 bootstrap();

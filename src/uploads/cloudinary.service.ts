@@ -19,9 +19,9 @@ export class CloudinaryService {
     filename?: string,
   ): Promise<{ url: string; publicId: string }> {
     try {
-      const folder = process.env.CLOUDINARY_FOLDER || 'food-delivery/menu';
+     // const folder = process.env.CLOUDINARY_FOLDER || 'food-delivery/menu';
       const options: UploadApiOptions = {
-        folder,
+       // folder,
         resource_type: 'image',
         use_filename: !!filename,
         unique_filename: !filename,
@@ -35,6 +35,8 @@ export class CloudinaryService {
         });
         streamifier.createReadStream(buffer).pipe(upload);
       });
+
+     
 
       return { url: result.secure_url, publicId: result.public_id };
     } catch (err: any) {
