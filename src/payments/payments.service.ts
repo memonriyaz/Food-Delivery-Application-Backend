@@ -24,11 +24,12 @@ export interface PaymentOrderResult {
 
 @Injectable()
 export class PaymentsService {
-  private baseUrl = 'https://sandbox.cashfree.com';
-  private apiVersion = '2023-08-01';
-  private clientId = 'TEST1011250204ce941052d408033e8220521101'
-  private clientSecret = 'cfsk_ma_test_1312eea19c86a5a22cc39ef76ca72e66_3d9953a4';
-  private webhookSecret = 'cfsk_ma_test_1312eea19c86a5a22cc39ef76ca72e66_3d9953a4'
+    private baseUrl = process.env.CF_BASE_URL || 'https://sandbox.cashfree.com';
+  private apiVersion = process.env.CF_API_VERSION || '2023-08-01';
+  private clientId = process.env.CF_CLIENT_ID;
+  private clientSecret = process.env.CF_CLIENT_SECRET;
+  private webhookSecret = process.env.CF_WEBHOOK_SECRET;
+
 
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
