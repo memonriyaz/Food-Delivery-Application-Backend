@@ -65,6 +65,15 @@ export class RestaurantController {
     @Req() req: any,
     @Body() body: any,
   ) {
+    console.log('=== FOOD ITEM CONTROLLER DEBUG ===');
+    console.log('Received image file:', {
+      hasImage: !!image,
+      filename: image?.originalname,
+      size: image?.buffer?.length,
+      mimetype: image?.mimetype
+    });
+    console.log('Request body:', body);
+
     const userId: string = req.user?.id as string;
 
     const createFoodItemDto: CreateFoodItemDto = {

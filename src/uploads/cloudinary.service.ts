@@ -19,12 +19,20 @@ export class CloudinaryService {
     filename?: string,
   ): Promise<{ url: string; publicId: string }> {
     try {
-     // const folder = process.env.CLOUDINARY_FOLDER || 'food-delivery/menu';
+      const folder = process.env.CLOUDINARY_FOLDER || 'food-delivery/menu';
+      
+      // Generate unique filename to prevent overwrites
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const uniqueFilename = filename 
+        ? `${filename.split('.')[0]}_${timestamp}_${randomSuffix}`
+        : `image_${timestamp}_${randomSuffix}`;
+      
       const options: UploadApiOptions = {
-       // folder,
+        folder,
         resource_type: 'image',
-        use_filename: !!filename,
-        unique_filename: !filename,
+        public_id: uniqueFilename,
+        unique_filename: true,
         overwrite: false,
       };
 

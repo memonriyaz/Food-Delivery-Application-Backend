@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { User } from "./user.schema";
+import { FoodItem } from "./food-item.schema";
 
 export type RestaurantDocument = Restaurant & Document;
 
@@ -41,8 +42,8 @@ export class Restaurant {
     @Prop({ type: Types.ObjectId, ref: "User", required: true })
     owner?: Types.ObjectId;
 
-
-
+    @Field(() => [FoodItem], { nullable: true })
+    foodItems?: FoodItem[];
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);

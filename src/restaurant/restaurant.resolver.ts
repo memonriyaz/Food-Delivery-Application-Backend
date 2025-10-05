@@ -13,10 +13,15 @@ export class RestaurantResolver {
   @UseGuards(GqlAuthGuard)
   async myRestaurant(@Context() context: any): Promise<Restaurant> {
     const user = context.req.user;
-    if (!user || !user._id) {
+    console.log('GraphQL User context:', user);
+    
+    if (!user || (!user.id && !user._id)) {
       throw new Error('Unauthorized');
     }
-    return this.restaurantService.getOwnerRestaurantWithFoodItems(user._id);
+    
+    // Handle both id and _id from JWT payload
+    const userId = user.id || user._id;
+    return this.restaurantService.getOwnerRestaurantWithFoodItems(userId);
   }
 
 

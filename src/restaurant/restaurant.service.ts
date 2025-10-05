@@ -46,7 +46,8 @@ export class RestaurantService {
             }
 
             // Check if the user already has a restaurant
-            const existingRestaurant = await this.restaurantModel.findOne({ owner: userId });
+            const userObjectId = new Types.ObjectId(userId);
+            const existingRestaurant = await this.restaurantModel.findOne({ owner: userObjectId });
             if (existingRestaurant) {
                 throw new BadRequestException('User already owns a restaurant');
             }
@@ -60,7 +61,7 @@ export class RestaurantService {
 
             const restuarant = new this.restaurantModel({
                 ...createRestaurantDto,
-                owner: user._id,
+                owner: userObjectId,
                 image: imageUrl
             })
 
@@ -90,6 +91,7 @@ export class RestaurantService {
     async addFoodItem(createFoodItemDto: CreateFoodItemDto, userId: string, imageBuffer?: Buffer, filename?: string,): Promise<FoodItem> {
         try {
 
+
             const restaurant = await this.restaurantModel.findOne({ owner: new Types.ObjectId(userId) });
             if (!restaurant) {
                 throw new BadRequestException('Restaurant not found');
@@ -98,11 +100,14 @@ export class RestaurantService {
             if (restaurant?.owner?.toString() !== userId) {
                 throw new ForbiddenException('You are not allowed to add food items to this restaurant');
             }
+            
             let imageUrl: string | undefined;
             if (imageBuffer) {
                 const { url } = await this.cloudinary.uploadImageBuffer(imageBuffer, filename);
                 imageUrl = url;
             }
+
+
 
             const foodItem = new this.foodItemModel({
                 ...createFoodItemDto,
@@ -129,9 +134,12 @@ export class RestaurantService {
                 throw new BadRequestException('User ID is required');
             }
 
+            // Convert string to ObjectId for proper MongoDB query
+            const objectId = new Types.ObjectId(userId);
+            
             // Fetch restaurant and populate owner
             const restaurant = await this.restaurantModel
-                .findOne({ owner: userId })
+                .findOne({ owner: objectId })
                 .populate('owner')
                 .exec();
 
@@ -143,6 +151,8 @@ export class RestaurantService {
             const foodItems = await this.foodItemModel
                 .find({ restaurant: restaurant._id })
                 .exec();
+
+
 
             // Return combined result
             return {
