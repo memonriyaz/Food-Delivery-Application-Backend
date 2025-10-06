@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { UploadApiOptions, UploadApiResponse } from 'cloudinary';
 import * as streamifier from 'streamifier';
@@ -20,14 +24,14 @@ export class CloudinaryService {
   ): Promise<{ url: string; publicId: string }> {
     try {
       const folder = process.env.CLOUDINARY_FOLDER || 'food-delivery/menu';
-      
+
       // Generate unique filename to prevent overwrites
       const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substring(2, 8);
-      const uniqueFilename = filename 
+      const uniqueFilename = filename
         ? `${filename.split('.')[0]}_${timestamp}_${randomSuffix}`
         : `image_${timestamp}_${randomSuffix}`;
-      
+
       const options: UploadApiOptions = {
         folder,
         resource_type: 'image',
@@ -37,18 +41,21 @@ export class CloudinaryService {
       };
 
       const result: UploadApiResponse = await new Promise((resolve, reject) => {
-        const upload = cloudinary.uploader.upload_stream(options, (error, res) => {
-          if (error || !res) return reject(error);
-          resolve(res);
-        });
+        const upload = cloudinary.uploader.upload_stream(
+          options,
+          (error, res) => {
+            if (error || !res) return reject(error);
+            resolve(res);
+          },
+        );
         streamifier.createReadStream(buffer).pipe(upload);
       });
 
-     
-
       return { url: result.secure_url, publicId: result.public_id };
     } catch (err: any) {
-      throw new InternalServerErrorException('Cloudinary upload failed: ' + err?.message);
+      throw new InternalServerErrorException(
+        'Cloudinary upload failed: ' + err?.message,
+      );
     }
   }
 
@@ -63,7 +70,9 @@ export class CloudinaryService {
       });
       return { result: res.result } as { result: string };
     } catch (err: any) {
-      throw new InternalServerErrorException('Cloudinary delete failed: ' + err?.message);
+      throw new InternalServerErrorException(
+        'Cloudinary delete failed: ' + err?.message,
+      );
     }
   }
 }

@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
-import { ObjectType, Field, Float } from "@nestjs/graphql";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { ObjectType, Field, Float } from '@nestjs/graphql';
 import { Restaurant } from './restaurant.schema';
 
 export type FoodItemDocument = FoodItem & Document;
@@ -16,7 +16,6 @@ export enum FoodCategory {
 @Schema({ timestamps: true })
 @ObjectType()
 export class FoodItem {
-
   @Field()
   @Prop({ required: true })
   name: string;
@@ -32,13 +31,13 @@ export class FoodItem {
   @Field()
   @Prop({
     type: String,
-    enum: ["veg", "non-veg"],
+    enum: ['veg', 'non-veg'],
     required: true,
   })
   type: string;
 
   @Field(() => Restaurant)
-  @Prop({ type: Types.ObjectId, ref: "Restaurant", required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
   restaurant: Restaurant;
 
   @Field(() => String)

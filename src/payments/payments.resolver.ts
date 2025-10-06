@@ -51,7 +51,9 @@ export class PaymentsResolver {
   // Confirm payment by fetching status from Cashfree and updating the order
   @UseGuards(GqlAuthGuard)
   @Mutation(() => OrderOutput, { name: 'confirmPayment' })
-  async confirmPayment(@Args('orderId', { type: () => String }) orderId: string) {
+  async confirmPayment(
+    @Args('orderId', { type: () => String }) orderId: string,
+  ) {
     const o: any = await this.paymentsService.confirmPaymentForOrder(orderId);
     return {
       orderId: o._id.toString(),
@@ -72,7 +74,9 @@ export class PaymentsResolver {
   // Refund payment via Cashfree and update order.paymentStatus to refunded
   @UseGuards(GqlAuthGuard)
   @Mutation(() => OrderOutput, { name: 'refundPayment' })
-  async refundPayment(@Args('orderId', { type: () => String }) orderId: string) {
+  async refundPayment(
+    @Args('orderId', { type: () => String }) orderId: string,
+  ) {
     const o: any = await this.paymentsService.refundPayment(orderId);
     return {
       orderId: o._id.toString(),
@@ -93,7 +97,9 @@ export class PaymentsResolver {
   // Query the current payment status for an order
   @UseGuards(GqlAuthGuard)
   @Query(() => String, { name: 'paymentStatus' })
-  async paymentStatus(@Args('orderId', { type: () => String }) orderId: string) {
+  async paymentStatus(
+    @Args('orderId', { type: () => String }) orderId: string,
+  ) {
     return this.paymentsService.getPaymentStatus(orderId);
   }
 }

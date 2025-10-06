@@ -23,14 +23,13 @@ export class SignupDto {
   password: string;
 
   // @IsPhoneNumber()
-    // @IsString()
-    // @IsNotEmpty()
-    // @Matches(/^[6-9]\d{9}$/, {
-    //     message: 'Phone number must be a valid 10-digit Indian number',
-    // })
+  // @IsString()
+  // @IsNotEmpty()
+  // @Matches(/^[6-9]\d{9}$/, {
+  //     message: 'Phone number must be a valid 10-digit Indian number',
+  // })
   phone: string;
 
-  
   @IsOptional()
   @IsEnum(UserRole, { message: 'Invalid Role' })
   role?: UserRole;

@@ -26,7 +26,9 @@ export class OrdersService {
     createOrderDto: CreateOrderInput,
     userId: string,
   ): Promise<OrderOutput> {
-    this.logger.log(`createOrder called: userId=${userId}, items=${createOrderDto?.items?.length ?? 0}`);
+    this.logger.log(
+      `createOrder called: userId=${userId}, items=${createOrderDto?.items?.length ?? 0}`,
+    );
     const { items, deliveryAddress, notes } = createOrderDto;
 
     try {
@@ -77,7 +79,9 @@ export class OrdersService {
       });
 
       const savedOrder = await newOrder.save();
-      this.logger.log(`createOrder saved: orderId=${(savedOrder._id as Types.ObjectId).toString()}, totalAmount=${totalAmount}`);
+      this.logger.log(
+        `createOrder saved: orderId=${(savedOrder._id as Types.ObjectId).toString()}, totalAmount=${totalAmount}`,
+      );
 
       // 6️⃣ Return clean response
       return {
@@ -154,7 +158,8 @@ export class OrdersService {
   */
   async startDelivery(orderId: string, deliveryUserId: string): Promise<Order> {
     const order = await this.orderModel.findById(orderId).exec();
-    if (!order) throw new NotFoundException(`Order with ID ${orderId} not found`);
+    if (!order)
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
 
     // Validate transition from current to out_for_delivery
     const allowedFrom = {
@@ -169,7 +174,9 @@ export class OrdersService {
 
     const from = order.status as string;
     if (!allowedFrom[from] || !allowedFrom[from].includes('out_for_delivery')) {
-      throw new BadRequestException(`Invalid transition from ${from} to out_for_delivery`);
+      throw new BadRequestException(
+        `Invalid transition from ${from} to out_for_delivery`,
+      );
     }
 
     order.assignedTo = new Types.ObjectId(deliveryUserId);
@@ -201,9 +208,7 @@ export class OrdersService {
 
   // Admin: basic stats by status
   async getOrderStats() {
-    const pipeline = [
-      { $group: { _id: '$status', count: { $sum: 1 } } },
-    ];
+    const pipeline = [{ $group: { _id: '$status', count: { $sum: 1 } } }];
     const rows = await this.orderModel.aggregate(pipeline).exec();
     const result: any = {
       total: 0,
@@ -225,10 +230,7 @@ export class OrdersService {
   /*
     ⚙️ Update order status with basic transition validation
   */
-  async updateStatus(
-    orderId: string,
-    next: string,
-  ) {
+  async updateStatus(orderId: string, next: string) {
     const order = await this.orderModel.findById(orderId).exec();
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
@@ -246,7 +248,9 @@ export class OrdersService {
 
     const from = order.status as string;
     if (!allowed[from] || !allowed[from].includes(next)) {
-      throw new BadRequestException(`Invalid transition from ${from} to ${next}`);
+      throw new BadRequestException(
+        `Invalid transition from ${from} to ${next}`,
+      );
     }
 
     order.status = next;

@@ -9,10 +9,7 @@ export class CreateUserInput {
   password: string; // ⚡ must be hashed in service, not here
 
   @Field()
-  firstName: string;
-
-  @Field()
-  lastName: string;
+  name: string;
 
   @Field({ nullable: true })
   role?: string; // defaults to 'customer'

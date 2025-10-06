@@ -70,7 +70,7 @@ export class AuthService {
    */
   async signUp(signupDto: SignupDto): Promise<SignupResponse> {
     try {
-      const { name, email, password, role , phone} = signupDto;
+      const { name, email, password, role, phone } = signupDto;
 
       // checking user exist or not
       const existingUser = await this.userModel.findOne({ email });
@@ -84,7 +84,7 @@ export class AuthService {
         email,
         password,
         role: role || UserRole.USER,
-        phone
+        phone,
       });
 
       await user.save();
@@ -119,7 +119,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResponse> {
     try {
       const { email, password } = loginDto;
-      console.log(email , password)
+      console.log(email, password);
 
       // fetch user including password for verification
       const userWithPassword = await this.userModel
@@ -178,7 +178,6 @@ export class AuthService {
   //               tokens,
   //               user
   //           }
-
 
   //       } catch (error) {
   //           throw new InternalServerErrorException("Failed to Login " + error)

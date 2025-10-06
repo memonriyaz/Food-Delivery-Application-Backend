@@ -87,7 +87,10 @@ export class OrdersResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('delivery')
   @Mutation(() => OrderOutput, { name: 'startDelivery' })
-  async startDelivery(@Args('orderId', { type: () => ID }) orderId: string, @CurrentUser() user: any) {
+  async startDelivery(
+    @Args('orderId', { type: () => ID }) orderId: string,
+    @CurrentUser() user: any,
+  ) {
     const o = await this.ordersService.startDelivery(orderId, user.id);
     return this.toOrderOutput(o);
   }
@@ -133,7 +136,9 @@ export class OrdersResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('restaurant')
   @Query(() => [OrderOutput], { name: 'allOrders' })
-  async allOrders(@Args('status', { type: () => String, nullable: true }) status?: string) {
+  async allOrders(
+    @Args('status', { type: () => String, nullable: true }) status?: string,
+  ) {
     const orders = await this.ordersService.findAll(status);
     return orders.map((o: any) => this.toOrderOutput(o));
   }

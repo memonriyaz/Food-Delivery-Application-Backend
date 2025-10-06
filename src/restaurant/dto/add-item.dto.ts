@@ -1,6 +1,6 @@
 // create-food-item.dto.ts
-import { InputType, Field, Float, ID } from "@nestjs/graphql";
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { InputType, Field, Float, ID } from '@nestjs/graphql';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateFoodItemDto {
@@ -15,7 +15,6 @@ export class CreateFoodItemDto {
 
   @Field()
   type: string; // "veg" | "non-veg"
-
 
   @Field()
   @IsNotEmpty()

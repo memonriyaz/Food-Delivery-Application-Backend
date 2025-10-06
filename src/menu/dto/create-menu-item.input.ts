@@ -1,6 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsString, IsNotEmpty, IsNumber, Min, IsOptional, IsArray, IsBoolean, IsIn, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  IsIn,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 @InputType()
@@ -45,7 +55,7 @@ export class CreateMenuItemInput {
 
   @Field()
   @IsString()
-  @IsIn(['appetizer','main','dessert','beverage'])
+  @IsIn(['appetizer', 'main', 'dessert', 'beverage'])
   category: string;
 
   @Field({ nullable: true })

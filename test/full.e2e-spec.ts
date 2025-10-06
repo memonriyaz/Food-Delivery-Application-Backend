@@ -48,7 +48,10 @@ describe('Full E2E (REST + GraphQL)', () => {
       if (url.endsWith('/pg/orders') && init?.method === 'POST') {
         return {
           ok: true,
-          json: async () => ({ order_id: 'CF_ORDER_123', payment_session_id: 'sess_456' }),
+          json: async () => ({
+            order_id: 'CF_ORDER_123',
+            payment_session_id: 'sess_456',
+          }),
         } as any;
       }
       if (url.includes('/refunds') && init?.method === 'POST') {
@@ -75,7 +78,12 @@ describe('Full E2E (REST + GraphQL)', () => {
     // Signup restaurant user for admin operations
     const signupRes = await request(server)
       .post('/auth/signup')
-      .send({ name: 'Admin Resto', email: 'resto@example.com', password: 'pass123', role: 'restaurant' })
+      .send({
+        name: 'Admin Resto',
+        email: 'resto@example.com',
+        password: 'pass123',
+        role: 'restaurant',
+      })
       .expect(201);
 
     expect(signupRes.body.message).toBeDefined();
@@ -96,12 +104,19 @@ describe('Full E2E (REST + GraphQL)', () => {
       .send({ refreshToken })
       .expect(201);
 
-    expect(refreshRes.body.accessToken || refreshRes.body.tokens?.accessToken).toBeDefined();
+    expect(
+      refreshRes.body.accessToken || refreshRes.body.tokens?.accessToken,
+    ).toBeDefined();
 
     // Signup normal user for placing orders
     await request(server)
       .post('/auth/signup')
-      .send({ name: 'Alice', email: 'alice@example.com', password: 'secret', role: 'user' })
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        password: 'secret',
+        role: 'user',
+      })
       .expect(201);
 
     const userLogin = await request(server)
@@ -123,14 +138,21 @@ describe('Full E2E (REST + GraphQL)', () => {
     // Add menu item
     const addRes = await gql(
       `mutation($input: CreateMenuItemInput!) { addMenuItem(input: $input) { id name price category isAvailable } }`,
-      { input: { name: 'Pasta', price: 12.5, category: 'main', isAvailable: true } },
+      {
+        input: {
+          name: 'Pasta',
+          price: 12.5,
+          category: 'main',
+          isAvailable: true,
+        },
+      },
       adminToken,
     );
     expect(addRes.addMenuItem.id).toBeDefined();
 
     // Public query menuItems
     const menuQuery = await gql(
-      `query { menuItems { id name price category isAvailable } }`
+      `query { menuItems { id name price category isAvailable } }`,
     );
     expect(Array.isArray(menuQuery.menuItems)).toBe(true);
     expect(menuQuery.menuItems.length).toBeGreaterThan(0);
@@ -156,9 +178,14 @@ describe('Full E2E (REST + GraphQL)', () => {
       {
         input: {
           items: [{ menuItemId, quantity: 2 }],
-          deliveryAddress: { street: '1 St', city: 'Town', state: 'ST', zipCode: '12345' },
-          notes: 'no onions'
-        }
+          deliveryAddress: {
+            street: '1 St',
+            city: 'Town',
+            state: 'ST',
+            zipCode: '12345',
+          },
+          notes: 'no onions',
+        },
       },
       userToken,
     );
@@ -167,7 +194,11 @@ describe('Full E2E (REST + GraphQL)', () => {
     const orderId = createOrder.createOrder.orderId as string;
 
     // User orders
-    const uo = await gql(`query { userOrders { orderId status totalAmount } }`, undefined, userToken);
+    const uo = await gql(
+      `query { userOrders { orderId status totalAmount } }`,
+      undefined,
+      userToken,
+    );
     expect(uo.userOrders.length).toBeGreaterThan(0);
 
     // Create payment for order (uses mocked fetch)
@@ -208,7 +239,17 @@ describe('Full E2E (REST + GraphQL)', () => {
 
     const makeOrder = await gql(
       `mutation($input: CreateOrderInput!) { createOrder(input: $input) { orderId } }`,
-      { input: { items: [{ menuItemId, quantity: 1 }], deliveryAddress: { street: '2 St', city: 'Town', state: 'ST', zipCode: '12345' } } },
+      {
+        input: {
+          items: [{ menuItemId, quantity: 1 }],
+          deliveryAddress: {
+            street: '2 St',
+            city: 'Town',
+            state: 'ST',
+            zipCode: '12345',
+          },
+        },
+      },
       userToken,
     );
     const orderId = makeOrder.createOrder.orderId as string;
@@ -221,7 +262,10 @@ describe('Full E2E (REST + GraphQL)', () => {
     );
 
     // Construct webhook payload
-    const payload = JSON.stringify({ order_id: 'CF_ORDER_123', payment_status: 'SUCCESS' });
+    const payload = JSON.stringify({
+      order_id: 'CF_ORDER_123',
+      payment_status: 'SUCCESS',
+    });
     const sig = createHmac('sha256', process.env.CF_WEBHOOK_SECRET as string)
       .update(payload, 'utf8')
       .digest('base64');
@@ -242,7 +286,11 @@ describe('Full E2E (REST + GraphQL)', () => {
       .expect(201);
     const adminToken = loginRes.body.tokens.accessToken as string;
 
-    const all = await gql(`query { allOrders { orderId status } }`, undefined, adminToken);
+    const all = await gql(
+      `query { allOrders { orderId status } }`,
+      undefined,
+      adminToken,
+    );
     expect(Array.isArray(all.allOrders)).toBe(true);
 
     const byStatus = await gql(
@@ -252,7 +300,11 @@ describe('Full E2E (REST + GraphQL)', () => {
     );
     expect(Array.isArray(byStatus.ordersByStatus)).toBe(true);
 
-    const stats = await gql(`query { orderStats { total placed confirmed delivered } }`, undefined, adminToken);
+    const stats = await gql(
+      `query { orderStats { total placed confirmed delivered } }`,
+      undefined,
+      adminToken,
+    );
     expect(stats.orderStats.total).toBeGreaterThan(0);
   });
 });
