@@ -5,7 +5,7 @@
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
-    "types": ["node", "bcrypt", "jest", "mocha"],
+    "types": ["node", "bcrypt", "jest"],
     "isolatedModules": true,
     "declaration": true,
     "removeComments": true,
